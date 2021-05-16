@@ -10,7 +10,7 @@ use std::time::Duration;
 fn main() {
     let context = sdl2::init().unwrap();
     let video_subsystem = context.video().unwrap();
-    let window = video_subsystem.window("Game", 200, 200).position_centered().build().unwrap();
+    let window = video_subsystem.window("Game", 400, 400).position_centered().build().unwrap();
     let mut canvas = window.into_canvas().build().unwrap();
 
     canvas.set_draw_color(Color::RGB(135, 206, 235));
@@ -48,7 +48,6 @@ fn main() {
 
         update(&mut player, left, right);
         draw(&mut canvas, &player);
-        canvas.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }
@@ -68,5 +67,6 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player)
     canvas.set_draw_color(Color::RGB(137, 206, 235));
     canvas.clear();
     canvas.set_draw_color(Color::BLACK);
-    canvas.fill_rect(player.rect).unwrap()
+    canvas.fill_rect(player.rect).unwrap();
+    canvas.present();
 }
