@@ -8,6 +8,9 @@ pub struct Player {
     pub min_vel: Vec2,
     pub max_vel: Vec2,
     pub input: i8,
+    pub jump: bool,
+    jumping: bool,
+    jump_time: i8,
 }
 
 impl Player {
@@ -18,8 +21,12 @@ impl Player {
             min_vel: Vec2(-5, -5),
             max_vel: Vec2(5, 5),
             input: 0,
+            jump: false,
+            jumping: false,
+            jump_time: 0,
         }
     }
+
     pub fn update(&mut self) {
         match self.input {
             1 => {
@@ -37,12 +44,25 @@ impl Player {
             },
             _ => (),
         }
-        self.walk();
-    }
-    fn walk(&mut self) {
         self.vel = clamp(&self.vel, &self.min_vel, &self.max_vel);
+
+        if self.jump && !self.jumping {
+            self.jump();
+        }
+
+        self.mov_pos();
+    }
+
+    fn mov_pos(&mut self) {
         self.rect.x += self.vel.0;
         self.rect.y += self.vel.1;
+    }
+
+    fn jump(&mut self) {
+         self.vel.1 = -5;
+    }
+
+    fn grounded(&mut self, tiles: Vec<Ground>) {
     }
 }
 
