@@ -52,7 +52,7 @@ impl Ground {
     fn new(x: i32, y: i32) -> Ground {
         Ground {
             rect: Rect::new(x * 16, y * 16, 16, 16),
-            draw_rect: Rect::new(x * 128, y * 128, 128, 128),
+            draw_rect: Rect::new(x * 64, y * 64, 64, 64),
         }
     }
 

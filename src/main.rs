@@ -27,7 +27,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
 
     let map = ground::read(1);
 
-    let mut player = Player::new(Rect::new(64, 64, 126, 126));
+    let mut player = Player::new(Rect::new(64, 64, 64, 64));
     'main: loop {
         for event in event_pump.poll_iter() {
             match event {
