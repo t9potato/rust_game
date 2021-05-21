@@ -20,6 +20,12 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
                "1" => {
                    map[y].push(Map::Ground(Ground::new(x, y as i32)));
                 },
+                "2" => {
+                    map[y].push(Map::Goal(Goal::new(x, y as i32, level + 1)));
+                },
+                "3" => {
+                    map[y].push(Map::Spike(Spike::new(x, y as i32)));
+                }
                _ => map[y].push(Map::Air),
             }
             x += 1;
@@ -32,12 +38,16 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
 pub enum Map {
     Air,
     Ground(Ground),
+    Goal(Goal),
+    Spike(Spike)
 }
 
 impl Map {
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
         match self {
             Map::Ground(ground) => ground.draw(canvas),
+            Map::Goal(goal) => goal.draw(canvas),
+            Map::Spike(spike) => spike.draw(canvas),
             Map::Air => (),
         }
     }
@@ -57,6 +67,47 @@ impl Ground {
     }
 
     fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(0, 0, 0));
+        canvas.fill_rect(self.draw_rect).unwrap();
+    }
+}
+
+pub struct Goal {
+    pub rect: Rect,
+    draw_rect: Rect,
+    pub dest: i32,
+}
+
+impl Goal {
+    fn new(x: i32, y: i32, dest: i32) -> Goal {
+        Goal {
+            rect: Rect::new(x * 16, y * 16, 16, 16),
+            draw_rect: Rect::new(x * 64, y * 64, 64, 64),
+            dest,
+        }
+    }
+
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(0, 100, 0));
+        canvas.fill_rect(self.draw_rect).unwrap();
+    }
+}
+
+pub struct Spike {
+    pub rect: Rect,
+    draw_rect: Rect,
+}
+
+impl Spike {
+    fn new(x: i32, y: i32) -> Spike {
+        Spike {
+            rect: Rect::new(x * 16, y * 16, 16, 16),
+            draw_rect: Rect::new(x * 64, y * 64, 64, 64),
+        }
+    }
+
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(152, 0, 0));
         canvas.fill_rect(self.draw_rect).unwrap();
     }
 }
