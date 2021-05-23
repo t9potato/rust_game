@@ -52,7 +52,6 @@ impl Player {
             _ => (),
         }
 
-
         self.vel = clamp(&self.vel, &self.min_vel, &self.max_vel);
         self.mov_pos();
         let ground_num = self.grounded(map);
@@ -63,6 +62,7 @@ impl Player {
         } else if ground_num > 1{
             return Some(ground_num - 1);
         } else {
+            self.vel = Vec2(0, 0);
             self.death_count += 1;
         }
         if self.jump && self.grounded {
