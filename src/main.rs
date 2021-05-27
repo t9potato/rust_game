@@ -11,7 +11,7 @@ use std::time::Duration;
 fn main() {
     let context = sdl2::init().unwrap();
     let video_subsystem = context.video().unwrap();
-    let window = video_subsystem.window("Game", 1200, 768).position_centered().build().unwrap();
+    let window = video_subsystem.window("Game", 2560, 1440).position_centered().build().unwrap();
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = context.event_pump().unwrap();
 
