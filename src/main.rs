@@ -66,7 +66,6 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
         draw(canvas, &player, &map);
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
-    println!("{}", player.death_count);
 }
 
 fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground::Map>>) -> Option<i32> {
