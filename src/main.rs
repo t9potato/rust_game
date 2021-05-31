@@ -96,3 +96,4 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player,
     player.draw(canvas);
     canvas.present();
 }
+
