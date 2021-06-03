@@ -6,7 +6,9 @@
 extern crate sdl2;
 mod player;
 mod ground;
+mod button;
 use player::*;
+use button::*;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -27,6 +29,18 @@ fn main() {
 }
 
 fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    'menu: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} |
+                Event::MouseButtonDown{mouse_btn: sdl2::mouse::MouseButton::Right, ..}
+                    => (),
+                Event::MouseButtonDown{mouse_btn: sdl2::mouse::MouseButton::Left, ..}
+                    => break 'menu,
+                _ => (),
+            }
+        }
+    }
     game(event_pump, canvas);
 }
 
@@ -96,4 +110,3 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player,
     player.draw(canvas);
     canvas.present();
 }
-

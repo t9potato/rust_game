@@ -131,6 +131,7 @@ impl Player {
     fn ajust_pos(&mut self, tile: Rect) -> bool {
         if self.previous_position.y + self.rect.h -1 <= tile.y {
             self.rect.y = tile.y - self.rect.h + 1;
+            self.vel.1 = 0;
             return true;
         } else if self.previous_position.y >= tile.y + tile.h {
             self.rect.y = tile.y + tile.h + 1;
@@ -140,10 +141,14 @@ impl Player {
             self.vel.0 = 0;
             self.rect.x = tile.x + tile.w;
             return false;
+        } else if self.previous_position.x + self.rect.w <= tile.x {
+            self.vel.0 = 0;
+            self.rect.x = tile.x - self.rect.w;
+            return false;
         }
-        self.vel.0 = 0;
-        self.rect.x = tile.x - self.rect.w;
-        return false;
+        self.rect.y = tile.y + tile.h + 1;
+        self.vel.1 = 0;
+        false
     }
 
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
