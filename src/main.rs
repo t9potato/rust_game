@@ -29,17 +29,24 @@ fn main() {
 }
 
 fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    let mut buttons = vec![
+        Button::new(Rect::new(1, 1, 44, 44), Action::Start),
+        Button::new(Rect::new(1, 1, 44, 44), Action::Continue(1)),
+        Button::new(Rect::new(1, 1, 44, 44), Action::Quit)
+    ];
+    let mut mouse_pos = Vec2(event_pump.mouse_state().x(), event_pump.mouse_state().y());
     'menu: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit {..} |
-                Event::MouseButtonDown{mouse_btn: sdl2::mouse::MouseButton::Right, ..}
-                    => (),
+                Event::Quit {..} => std::process::exit(0),
                 Event::MouseButtonDown{mouse_btn: sdl2::mouse::MouseButton::Left, ..}
                     => break 'menu,
                 _ => (),
             }
         }
+        mouse_pos = Vec2(event_pump.mouse_state().x(), event_pump.mouse_state().y());
+        menu_draw(canvas, &mut buttons);
+        std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
     game(event_pump, canvas);
 }
@@ -83,7 +90,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
             map = ground::read(level);
         }
         draw(canvas, &player, &map);
-        std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
 }
 
@@ -108,5 +115,14 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player,
         }
     }
     player.draw(canvas);
+    canvas.present();
+}
+
+fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>) {
+    canvas.set_draw_color(Color::RGB(137, 206, 235));
+    canvas.clear();
+    for button in buttons {
+        button.draw(canvas);
+    }
     canvas.present();
 }
