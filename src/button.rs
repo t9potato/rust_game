@@ -35,7 +35,6 @@ pub struct Button {
     pub action: Action,
 }
 
-use crate::player;
 impl Button {
     pub fn new(rect: sdl2::rect::Rect, action_in: Action) -> Button {
         Button {
@@ -47,13 +46,6 @@ impl Button {
             },
             colision: false,
         }
-    }
-
-    pub fn touched(&self, mouse_pos: player::Vec2) -> bool {
-        if self.rect.contains_rect(sdl2::rect::Rect::new(mouse_pos.0, mouse_pos.1, 0, 0)) {
-            return true;
-        }
-        false
     }
 
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {

@@ -34,7 +34,7 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
         Button::new(Rect::new(1, 1, 44, 44), Action::Continue(1)),
         Button::new(Rect::new(1, 1, 44, 44), Action::Quit)
     ];
-    let mut mouse_pos = Vec2(event_pump.mouse_state().x(), event_pump.mouse_state().y());
+    let mut mouse = Rect::new(1264, 704, 32, 32);
     'menu: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -44,7 +44,12 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                 _ => (),
             }
         }
-        mouse_pos = Vec2(event_pump.mouse_state().x(), event_pump.mouse_state().y());
+        for button in &mut buttons {
+            match button.rect.intersection(mouse) {
+                Some(_) => button.colision = true,
+                None => button.colision = false,
+            }
+        }
         menu_draw(canvas, &mut buttons);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
