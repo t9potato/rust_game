@@ -22,7 +22,9 @@ impl Action {
             Ok(_) => (),
             Err(_) => return Action::Start,
         };
-        match data.parse::<i32>() {
+        //find error
+        //println!("{}", data);
+        match data.trim().parse::<i32>() {
             Ok(num) => return Action::Continue(num),
             Err(_) => return Action::Start,
         }
@@ -49,7 +51,59 @@ impl Button {
     }
 
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(32, 32, 32));
+        if self.colision {
+            canvas.set_draw_color(sdl2::pixels::Color::RGB(32, 32, 32));
+        } else {
+            canvas.set_draw_color(sdl2::pixels::Color::RGB(132, 132, 132));
+        }
+        canvas.fill_rect(self.rect).unwrap();
+    }
+
+    pub fn function(&self) -> i32 {
+        match self.action {
+            Action::Quit => std::process::exit(0),
+            Action::Start => 1,
+            Action::Continue(num) => num,
+        }
+    }
+}
+
+pub struct Mouse {
+    pub rect: sdl2::rect::Rect,
+    pub up: bool,
+    pub down: bool,
+    pub left: bool,
+    pub right: bool,
+}
+
+impl Mouse {
+    pub fn new() -> Mouse {
+        Mouse {
+            rect: sdl2::rect::Rect::new(1264, 704, 32, 32),
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+        }
+    }
+
+    pub fn update(&mut self) {
+        if self.up {
+            self.rect.y -= 6;
+        }
+        if self.down {
+            self.rect.y += 6;
+        }
+        if self.left {
+            self.rect.x -= 6;
+        }
+        if self.right {
+            self.rect.x += 6;
+        }
+    }
+
+    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(152, 0, 0));
         canvas.fill_rect(self.rect).unwrap();
     }
 }
