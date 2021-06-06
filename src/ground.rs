@@ -6,6 +6,7 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
     use std::io::prelude::*;
     let pathstr = (format!("maps/level{}.txt", level)).to_string();
     let path = Path::new(&pathstr);
+    std::fs::write(Path::new("save"), level.to_string()).unwrap();
     let mut file = File::open(path).expect("Failed to read file");
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();

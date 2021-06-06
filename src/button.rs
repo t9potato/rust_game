@@ -50,13 +50,16 @@ impl Button {
         }
     }
 
-    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &sdl2::ttf::Font) {
         if self.colision {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(32, 32, 32));
         } else {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(132, 132, 132));
         }
         canvas.fill_rect(self.rect).unwrap();
+        match self.action {
+            _ => (),
+        }
     }
 
     pub fn function(&self) -> i32 {

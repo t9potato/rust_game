@@ -18,6 +18,7 @@ use std::time::Duration;
 fn main() {
     let context = sdl2::init().unwrap();
     let font_context = sdl2::ttf::init().unwrap();
+    let font = font_context.load_font(std::path::Path::new("assets/Silver.ttf"), 32).unwrap();
     let video_subsystem = context.video().unwrap();
     let window = video_subsystem.window("Game", 2560, 1440).position_centered().build().unwrap();
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
@@ -26,10 +27,10 @@ fn main() {
     canvas.set_draw_color(Color::RGB(135, 206, 235));
     canvas.clear();
     canvas.present();
-    menu(&mut event_pump, &mut canvas);
+    menu(&mut event_pump, &mut canvas, &font);
 }
 
-fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &sdl2::ttf::Font) {
     let mut buttons = vec![
         Button::new(Rect::new(16, 16, 2528, 458), Action::Start),
         Button::new(Rect::new(16, 490, 2528, 458), Action::Continue(1)),
@@ -47,7 +48,8 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                         Some(Keycode::Right) => mouse.right = true,
                         Some(Keycode::Up) => mouse.up = true,
                         Some(Keycode::Down) => mouse.down = true,
-                        Some(Keycode::Space) => {
+                        Some(Keycode::LShift) |
+                        Some(Keycode::RShift) => {
                             for button in &buttons {
                                 if button.colision {
                                     level = button.function();
@@ -77,7 +79,7 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                 None => button.colision = false,
             }
         }
-        menu_draw(canvas, &mut buttons, &mouse);
+        menu_draw(canvas, &mut buttons, &mouse, &font);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
     game(event_pump, canvas, level);
@@ -102,7 +104,8 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                     match keycode {
                         Some(Keycode::Left) => left = true,
                         Some(Keycode::Right) => right = true,
-                        Some(Keycode::Space) => player.jump = true,
+                        Some(Keycode::LShift) |
+                        Some(Keycode::RShift) => player.jump = true,
                         _ => ()
                     }
                 },
@@ -110,7 +113,8 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                     match keycode {
                         Some(Keycode::Left) => left = false,
                         Some(Keycode::Right) => right = false,
-                        Some(Keycode::Space) => player.jump = false,
+                        Some(Keycode::LShift) |
+                        Some(Keycode::RShift) => player.jump = false,
                         _ => ()
                     }
                 },
@@ -150,11 +154,11 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player,
     canvas.present();
 }
 
-fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse) {
+fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse, font: &sdl2::ttf::Font) {
     canvas.set_draw_color(Color::RGB(137, 206, 235));
     canvas.clear();
     for button in buttons {
-        button.draw(canvas);
+        button.draw(canvas, &font);
     }
     mouse.draw(canvas);
     canvas.present();
