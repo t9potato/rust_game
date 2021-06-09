@@ -34,7 +34,7 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self, map: &mut Vec<Vec<Map>>) -> Option<i32> {
+    pub fn update(&mut self, map: &mut Vec<Vec<Map>>, canvas_size: (u32, u32)) -> Option<i32> {
         match self.input {
             1 => {
                 self.vel.0 += 1;
@@ -54,7 +54,7 @@ impl Player {
 
         self.vel = clamp(&self.vel, &self.min_vel, &self.max_vel);
         self.mov_pos();
-        let ground_num = self.grounded(map);
+        let ground_num = self.grounded(map, canvas_size);
         if ground_num == 0 {
             self.grounded = false;
         } else if ground_num == 1{
@@ -88,8 +88,13 @@ impl Player {
          self.vel.1 = -8;
     }
 
-    fn grounded(&mut self, tiles: &mut Vec<Vec<Map>>) -> i32 {
+    fn grounded(&mut self, tiles: &mut Vec<Vec<Map>>, canvas_size: (u32, u32)) -> i32 {
         let mut return_num = 0;
+        if self.rect.y > (canvas_size.1 / 4) as i32 {
+            self.rect.x = self.start_pos.0;
+            self.rect.y = self.start_pos.1;
+            return -1;
+        }
         for rows in tiles {
             for tile in rows {
                 match tile {

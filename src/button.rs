@@ -57,9 +57,6 @@ impl Button {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(132, 132, 132));
         }
         canvas.fill_rect(self.rect).unwrap();
-        match self.action {
-            _ => (),
-        }
     }
 
     pub fn function(&self) -> i32 {

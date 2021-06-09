@@ -41,7 +41,9 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
     'menu: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit {..} => std::process::exit(0),
+                Event::Quit {..} |
+                Event::KeyDown{keycode: Some(Keycode::Escape), .. }
+                    => std::process::exit(0),
                 Event::KeyDown {keycode, ..} => {
                     match keycode {
                         Some(Keycode::Left) => mouse.left = true,
@@ -91,7 +93,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
 
     let mut map = ground::read(level);
 
-    let mut player = Player::new(Rect::new(64, 64, 64, 64));
+    let mut player = Player::new(Rect::new(64, 256, 64, 64));
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -122,7 +124,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
             }
         }
 
-        if let Some(level) = update(&mut player, left, right, &mut map) {
+        if let Some(level) = update(&mut player, left, right, &mut map, canvas.output_size().unwrap()) {
             map = ground::read(level);
         }
         draw(canvas, &player, &map);
@@ -130,7 +132,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
     }
 }
 
-fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground::Map>>) -> Option<i32> {
+fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground::Map>>, canvas_size: (u32, u32)) -> Option<i32> {
     if (left && right) || (!left && !right) {
         player.input = 0;
     } else if left {
@@ -138,7 +140,7 @@ fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground
     } else {
         player.input = 1;
     }
-    player.update(map)
+    player.update(map, canvas_size)
 }
 
 fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player, map: &Vec<Vec<ground::Map>>) {
