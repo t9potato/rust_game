@@ -1,0 +1,11 @@
+1. Platforms don't go left
+2. Design around mechanics
+3. Pay attention to Innovation & familiarity
+## Mega man teaches you challenges & they get used together.
+4. Use start to introduce mechanics
+5. Start with a rough prototype
+6. Add more detail slowly, make it fun every time.
+7. If it looks bad people will find it more rewarding to complete
+8. Don't overdo artificial difficulty
+9. Empty space affects player perception.
+10. Rest periods: easy/blank spaces to not over do things.

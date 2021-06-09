@@ -95,7 +95,7 @@ impl Player {
             self.rect.y = self.start_pos.1;
             return -1;
         }
-        for rows in tiles {
+        'map: for rows in tiles {
             for tile in rows {
                 match tile {
                         Map::Ground(floor) => {
@@ -120,6 +120,9 @@ impl Player {
                         }
                         Map::Air => (),
                     }
+                }
+                if return_num != 0 {
+                    break 'map;
                 }
             }
         if return_num < 0 {
