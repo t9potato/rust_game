@@ -50,13 +50,30 @@ impl Button {
         }
     }
 
-    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
         if self.colision {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(32, 32, 32));
         } else {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(132, 132, 132));
         }
         canvas.fill_rect(self.rect).unwrap();
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
+        let texture: sdl2::render::Texture;
+        match self.action {
+            Action::Quit => {
+                let surface = font.render("QUIT").blended(sdl2::pixels::Color::BLACK).unwrap();
+                texture = texture_creator.create_texture_from_surface(&surface).unwrap()
+            },
+            Action::Continue(..) => {
+                let surface = font.render("CONTINUE").blended(sdl2::pixels::Color::BLACK).unwrap();
+                texture = texture_creator.create_texture_from_surface(&surface).unwrap()
+            },
+            Action::Start => {
+                let surface = font.render("START").blended(sdl2::pixels::Color::BLACK).unwrap();
+                texture = texture_creator.create_texture_from_surface(&surface).unwrap()
+            },
+        }
+        canvas.copy(&texture, None, Some(self.rect)).unwrap();
     }
 
     pub fn function(&self) -> i32 {

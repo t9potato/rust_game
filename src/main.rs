@@ -17,18 +17,21 @@ use std::time::Duration;
 
 fn main() {
     let context = sdl2::init().unwrap();
+    let ttf_context = sdl2::ttf::init().unwrap();
     let video_subsystem = context.video().unwrap();
-    let window = video_subsystem.window("Game", 2560, 1440).position_centered().build().unwrap();
+    let window = video_subsystem.window("Game", 2560, 1440).opengl().position_centered().build().unwrap();
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = context.event_pump().unwrap();
+    let mut font = ttf_context.load_font(std::path::Path::new("assets/Silver.ttf"), 128).unwrap();
+    let texture_creator = canvas.texture_creator();
 
     canvas.set_draw_color(Color::RGB(135, 206, 235));
     canvas.clear();
     canvas.present();
-    menu(&mut event_pump, &mut canvas);
+    menu(&mut event_pump, &mut canvas, &mut font, &texture_creator);
 }
 
-fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     let mut buttons = vec![
         Button::new(Rect::new(16, 16, 2528, 458), Action::Start),
         Button::new(Rect::new(16, 490, 2528, 458), Action::Continue(1)),
@@ -79,7 +82,7 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                 None => button.colision = false,
             }
         }
-        menu_draw(canvas, &mut buttons, &mouse);
+        menu_draw(canvas, &mut buttons, &mouse, font, &texture_creator);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
     game(event_pump, canvas, level);
@@ -154,11 +157,11 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player,
     canvas.present();
 }
 
-fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse) {
+fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     canvas.set_draw_color(Color::RGB(137, 206, 235));
     canvas.clear();
     for button in buttons {
-        button.draw(canvas);
+        button.draw(canvas, font, texture_creator);
     }
     mouse.draw(canvas);
     canvas.present();
