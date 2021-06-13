@@ -22,7 +22,7 @@ fn main() {
     let window = video_subsystem.window("Game", 2560, 1440).opengl().position_centered().build().unwrap();
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = context.event_pump().unwrap();
-    let mut font = ttf_context.load_font(std::path::Path::new("assets/Silver.ttf"), 128).unwrap();
+    let mut font = ttf_context.load_font(std::path::Path::new("assets/GnuUnifontFull-Pm9P.ttf"), 32).unwrap();
     let texture_creator = canvas.texture_creator();
 
     canvas.set_draw_color(Color::RGB(135, 206, 235));
@@ -33,9 +33,9 @@ fn main() {
 
 fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     let mut buttons = vec![
-        Button::new(Rect::new(16, 16, 2528, 458), Action::Start),
-        Button::new(Rect::new(16, 490, 2528, 458), Action::Continue(1)),
-        Button::new(Rect::new(16, 964, 2528, 458), Action::Quit)
+        Button::new(Rect::new(16, 16, 256, 32), Action::Start),
+        Button::new(Rect::new(16, 490, 256, 32), Action::Continue(1)),
+        Button::new(Rect::new(16, 964, 256, 32), Action::Quit)
     ];
     let mut mouse = Mouse::new();
     let level: i32;
