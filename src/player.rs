@@ -61,7 +61,7 @@ impl Player {
             self.grounded = true;
         } else if ground_num > 1{
             return Some(ground_num - 1);
-        } else {
+        } else if ground_num == -1{
             self.vel = Vec2(0, 0);
             self.death_count += 1;
         }
@@ -100,8 +100,9 @@ impl Player {
                 match tile {
                         Map::Ground(floor) => {
                             if let Some(..) = self.rect.intersection(floor.rect) {
-                                if self.ajust_pos(floor.rect) {
-                                    return_num = 1;
+                                match self.ajust_pos(floor.rect) {
+                                    1 => return_num = 1,
+                                    _ => (),
                                 }
                             }},
                         Map::Goal(goal) => {
@@ -136,31 +137,31 @@ impl Player {
         self.vel.1 += 1;
     }
 
-    fn ajust_pos(&mut self, tile: Rect) -> bool {
+    fn ajust_pos(&mut self, tile: Rect) -> i8 {
         if self.previous_position.y + self.rect.h -1 <= tile.y {
             self.rect.y = tile.y - self.rect.h + 1;
             self.vel.1 = 0;
-            return true;
+            return 1;
         } else if self.previous_position.y >= tile.y + tile.h {
             self.rect.y = tile.y + tile.h + 1;
             self.vel.1 = 0;
-            return false;
+            return 2;
         } else if self.previous_position.x >= tile.x + tile.w {
             self.vel.0 = 0;
             self.rect.x = tile.x + tile.w;
-            return false;
+            return 0;
         } else if self.previous_position.x + self.rect.w <= tile.x {
             self.vel.0 = 0;
             self.rect.x = tile.x - self.rect.w;
-            return false;
+            return 0;
         }
         self.rect.y = tile.y + tile.h + 1;
         self.vel.1 = 0;
-        false
+        2
     }
 
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(32, 32, 32));
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(128, 0, 128));
         canvas.fill_rect(self.draw_rect).unwrap();
     }
 }

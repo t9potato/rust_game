@@ -33,9 +33,9 @@ fn main() {
 
 fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     let mut buttons = vec![
-        Button::new(Rect::new(16, 16, 256, 32), Action::Start),
-        Button::new(Rect::new(16, 490, 256, 32), Action::Continue(1)),
-        Button::new(Rect::new(16, 964, 256, 32), Action::Quit)
+        Button::new(Rect::new(1158, 1312, 256, 32), Action::Start),
+        Button::new(Rect::new(1158, 1360, 256, 32), Action::Continue(1)),
+        Button::new(Rect::new(1158, 1408, 256, 32), Action::Quit)
     ];
     let mut mouse = Mouse::new();
     let level: i32;
@@ -94,7 +94,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
 
     let mut map = ground::read(level);
 
-    let mut player = Player::new(Rect::new(64, 256, 64, 64));
+    let mut player = Player::new(Rect::new(64, 1312, 64, 64));
 
     'main: loop {
         for event in event_pump.poll_iter() {
