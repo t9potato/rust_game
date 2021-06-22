@@ -2,6 +2,8 @@ use std::fs::File;
 use std::path::Path;
 use sdl2::rect::Rect;
 
+///Load ground from a level text file t make level edditing easier that with manual definitions in
+///the code.
 pub fn read(level: i32) -> Vec<Vec<Map>>{
     use std::io::prelude::*;
     let pathstr = (format!("maps/level{}.txt", level)).to_string();
@@ -36,6 +38,7 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
     map
 }
 
+///Usful rust enum to store map data
 pub enum Map {
     Air,
     Ground(Ground),

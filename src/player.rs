@@ -1,8 +1,11 @@
+//!The code for the player character
+
 use crate::ground::*;
 use sdl2::rect::Rect;
 
 pub struct Vec2(pub i32, pub i32);
 
+///This class hase some spageti, but it is still decently readable
 pub struct Player {
     pub rect: Rect,
     start_pos: Vec2,
@@ -166,6 +169,8 @@ impl Player {
     }
 }
 
+///Function used to make there numbers in 1 vector fit inside the range of 2 other vectors by
+///trimming
 fn clamp(num: &Vec2, min: &Vec2, max: &Vec2) -> Vec2{
     let mut ans = Vec2(num.0, num.1);
     if num.0 < min.0 {
