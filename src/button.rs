@@ -87,6 +87,7 @@ impl Button {
     }
 }
 
+///A basic character to replicate the mouse so it can be used with a joystick
 pub struct Mouse {
     pub rect: sdl2::rect::Rect,
     pub up: bool,
