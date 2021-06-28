@@ -1,5 +1,5 @@
 [package]
-name = "gui"
+name = "pastel_platformer"
 version = "0.1.0"
 authors = ["John Smith"]
 edition = "2018"
