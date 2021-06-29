@@ -168,7 +168,7 @@ impl <'a> Player <'a> {
         2
     }
 
-    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
         self.animation_num += 1;
         if self.animation_num == 54 {
             self.animation_num = 0;

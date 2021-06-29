@@ -84,11 +84,14 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
 }
 
 fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
-    let _image_context = sdl2::image::init(sdl2::image::InitFlag::PNG).unwrap();
+    sdl2::image::init(sdl2::image::InitFlag::PNG).unwrap();
     let mut left = false;
     let mut right = false;
 
-    let mut map = ground::read(level, texture_creator);
+
+    use sdl2::image::LoadTexture;
+    let ground_texture = texture_creator.load_texture(std::path::Path::new("assets/Tilemap.png")).unwrap();
+    let mut map = ground::read(level);
     let mut player = Player::new(Rect::new(64, 1312, 64, 64), texture_creator);
 
     'main: loop {
@@ -121,9 +124,9 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
         }
 
         if let Some(level) = update(&mut player, left, right, &mut map, canvas.output_size().unwrap()) {
-            map = ground::read(level, texture_creator);
+            map = ground::read(level);
         }
-        draw(canvas, &mut player, &map, &texture_creator);
+        draw(canvas, &mut player, &map, &ground_texture);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
 }
@@ -139,16 +142,16 @@ fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground
     player.update(map, canvas_size)
 }
 
-fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &Vec<Vec<ground::Map>>, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &Vec<Vec<ground::Map>>, ground_texture: &sdl2::render::Texture) {
     canvas.set_draw_color(Color::RGB(141, 183, 255));
     canvas.clear();
     canvas.set_draw_color(Color::BLACK);
     for item in map {
         for tile in item {
-            tile.draw(canvas);
+            tile.draw(canvas, ground_texture);
         }
     }
-    player.draw(canvas, texture_creator);
+    player.draw(canvas);
     canvas.present();
 }
 
