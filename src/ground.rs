@@ -52,7 +52,13 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
                    map[y].push(Map::Ground(Ground::new(x as i32, y as i32, args)));
                 },
                 &"2" => {
-                    map[y].push(Map::Goal(Goal::new(x as i32, y as i32, level + 1)));
+                    let pos: bool;
+                    if y == 0 || content[y-1][x] != "2" {
+                        pos = true;
+                    } else {
+                        pos = false;
+                    }
+                    map[y].push(Map::Goal(Goal::new(x as i32, y as i32, level + 1, pos)));
                 },
                 &"3" => {
                     map[y].push(Map::Spike(Spike::new(x as i32, y as i32)));
@@ -76,11 +82,11 @@ pub enum Map {
 }
 
 impl Map {
-    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, ground_texture: &sdl2::render::Texture) {
+    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, map_textures: &Vec<sdl2::render::Texture>) {
         match self {
-            Map::Ground(ground) => ground.draw(canvas, ground_texture),
-            Map::Goal(goal) => goal.draw(canvas),
-            Map::Spike(spike) => spike.draw(canvas),
+            Map::Ground(ground) => ground.draw(canvas, &map_textures[0]),
+            Map::Goal(goal) => goal.draw(canvas, &map_textures[2]),
+            Map::Spike(spike) => spike.draw(canvas, &map_textures[1]),
             Map::Air => (),
         }
     }
@@ -144,21 +150,25 @@ impl Ground {
 pub struct Goal {
     pub rect: Rect,
     draw_rect: Rect,
+    texture_rect: Rect,
     pub dest: i32,
 }
 
 impl Goal {
-    fn new(x: i32, y: i32, dest: i32) -> Goal {
+    fn new(x: i32, y: i32, dest: i32, top: bool) -> Goal {
         Goal {
             rect: Rect::new(x * 16, y * 16, 16, 16),
             draw_rect: Rect::new(x * 64, y * 64, 64, 64),
+            texture_rect: match top {
+                true => Rect::new(0, 0, 16, 16),
+                false => Rect::new(16, 0, 16, 16),
+            },
             dest,
         }
     }
 
-    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(0, 100, 0));
-        canvas.fill_rect(self.draw_rect).unwrap();
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &sdl2::render::Texture) {
+        canvas.copy(texture, self.texture_rect, self.draw_rect).unwrap();
     }
 }
 
@@ -175,8 +185,7 @@ impl Spike {
         }
     }
 
-    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(152, 0, 0));
-        canvas.fill_rect(self.draw_rect).unwrap();
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture: &sdl2::render::Texture) {
+        canvas.copy(texture, None, self.draw_rect).unwrap()
     }
 }
