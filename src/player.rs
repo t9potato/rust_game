@@ -6,7 +6,7 @@ use sdl2::rect::Rect;
 pub struct Vec2(pub i32, pub i32);
 
 ///This class hase some spageti, but it is still decently readable
-pub struct Player {
+pub struct Player <'a> {
     pub rect: Rect,
     start_pos: Vec2,
     previous_position: Rect,
@@ -18,10 +18,13 @@ pub struct Player {
     pub jump: bool,
     pub death_count: i8,
     grounded: bool,
+    texture: sdl2::render::Texture<'a>,
+    animation_num: i32,
 }
 
-impl Player {
-    pub fn new(rect: Rect) -> Player {
+impl <'a> Player <'a> {
+    pub fn new(rect: Rect, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) -> Player {
+        use sdl2::image::LoadTexture;
         Player {
             draw_rect: Rect::new(rect.x, rect.y + 1, rect.width(), rect.height()),
             rect: Rect::new(rect.x / 4, rect.y / 4, rect.width() / 4, rect.height() / 4),
@@ -34,6 +37,8 @@ impl Player {
             jump: false,
             grounded: false,
             death_count: 0,
+            texture: texture_creator.load_texture("assets/Player.png").unwrap(),
+            animation_num: 0,
         }
     }
 
@@ -163,9 +168,16 @@ impl Player {
         2
     }
 
-    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(128, 0, 128));
-        canvas.fill_rect(self.draw_rect).unwrap();
+    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+        self.animation_num += 1;
+        if self.animation_num == 54 {
+            self.animation_num = 0;
+        }
+        if self.animation_num < 49 {
+            canvas.copy(&self.texture, Rect::new(0,0,16,16), self.draw_rect).unwrap();
+        } else {
+            canvas.copy(&self.texture, Rect::new(16,0,16,16), self.draw_rect).unwrap();
+        }
     }
 }
 

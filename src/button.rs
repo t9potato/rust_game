@@ -53,25 +53,25 @@ impl Button {
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
         use sdl2::rect::Rect;
         if self.colision {
-            canvas.set_draw_color(sdl2::pixels::Color::RGB(32, 32, 32));
+            canvas.set_draw_color(sdl2::pixels::Color::RGB(217, 189, 200));
         } else {
-            canvas.set_draw_color(sdl2::pixels::Color::RGB(132, 132, 132));
+            canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
         }
         canvas.fill_rect(self.rect).unwrap();
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
+        let text_color = sdl2::pixels::Color::RGB(31, 16, 42);
         match self.action {
             Action::Quit => {
-                let surface = font.render("QUIT").blended(sdl2::pixels::Color::BLACK).unwrap();
+                let surface = font.render("QUIT").blended(text_color).unwrap();
                 let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
                 canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 64, self.rect.y, 128, self.rect.height()))).unwrap();
             },
             Action::Continue(..) => {
-                let surface = font.render("CONTINUE").blended(sdl2::pixels::Color::BLACK).unwrap();
+                let surface = font.render("CONTINUE").blended(text_color).unwrap();
                 let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
                 canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 128, self.rect.y, 256, self.rect.height()))).unwrap();
             },
             Action::Start => {
-                let surface = font.render("START").blended(sdl2::pixels::Color::BLACK).unwrap();
+                let surface = font.render("START").blended(text_color).unwrap();
                 let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
                 canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 80, self.rect.y, 160, self.rect.height()))).unwrap();
             },

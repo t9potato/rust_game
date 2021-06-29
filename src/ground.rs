@@ -4,7 +4,7 @@ use sdl2::rect::Rect;
 
 ///Load ground from a level text file t make level edditing easier that with manual definitions in
 ///the code.
-pub fn read(level: i32) -> Vec<Vec<Map>>{
+pub fn read(level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) -> Vec<Vec<Map>>{
     use std::io::prelude::*;
     let pathstr = (format!("maps/level{}.txt", level)).to_string();
     let path = Path::new(&pathstr);
@@ -21,7 +21,7 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
             match item {
                //"0" => ground::Map::Air,
                "1" => {
-                   map[y].push(Map::Ground(Ground::new(x, y as i32)));
+                   map[y].push(Map::Ground(Ground::new(x, y as i32, texture_creator)));
                 },
                 "2" => {
                     map[y].push(Map::Goal(Goal::new(x, y as i32, level + 1)));
@@ -39,14 +39,14 @@ pub fn read(level: i32) -> Vec<Vec<Map>>{
 }
 
 ///Usful rust enum to store map data
-pub enum Map {
+pub enum Map <'a> {
     Air,
-    Ground(Ground),
+    Ground(Ground<'a>),
     Goal(Goal),
     Spike(Spike)
 }
 
-impl Map {
+impl <'a> Map <'a> {
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
         match self {
             Map::Ground(ground) => ground.draw(canvas),
@@ -57,16 +57,19 @@ impl Map {
     }
 }
 
-pub struct Ground {
+pub struct Ground <'a> {
     pub rect: Rect,
     draw_rect: Rect,
+    texture: sdl2::render::Texture<'a>
 }
 
-impl Ground {
-    fn new(x: i32, y: i32) -> Ground {
+impl <'a> Ground <'a> {
+    fn new(x: i32, y: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) -> Ground {
+        use sdl2::image::LoadTexture;
         Ground {
             rect: Rect::new(x * 16, y * 16, 16, 16),
             draw_rect: Rect::new(x * 64, y * 64, 64, 64),
+            texture: texture_creator.load_texture(std::path::Path::new("assets/Tilemap.png")).unwrap(),
         }
     }
 

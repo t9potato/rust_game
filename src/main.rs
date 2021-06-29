@@ -1,8 +1,3 @@
-//! This project is libre, and licenced under the terms of the
-//! DO WHAT THE FUCK YOU WANT TO PUBLIC LICENCE, version 3.1,
-//! as published by dtf on July 2019. See the COPYING file or
-//! https://ph.dtf.wtf/w/wtfpl/#version-3-1 for more details.
-
 extern crate sdl2;
 mod player;
 mod ground;
@@ -85,16 +80,16 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
         menu_draw(canvas, &mut buttons, &mouse, font, &texture_creator);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
-    game(event_pump, canvas, level);
+    game(event_pump, canvas, level, texture_creator);
 }
 
-fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, level: i32) {
+fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+    let _image_context = sdl2::image::init(sdl2::image::InitFlag::PNG).unwrap();
     let mut left = false;
     let mut right = false;
 
-    let mut map = ground::read(level);
-
-    let mut player = Player::new(Rect::new(64, 1312, 64, 64));
+    let mut map = ground::read(level, texture_creator);
+    let mut player = Player::new(Rect::new(64, 1312, 64, 64), texture_creator);
 
     'main: loop {
         for event in event_pump.poll_iter() {
@@ -126,9 +121,9 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
         }
 
         if let Some(level) = update(&mut player, left, right, &mut map, canvas.output_size().unwrap()) {
-            map = ground::read(level);
+            map = ground::read(level, texture_creator);
         }
-        draw(canvas, &player, &map);
+        draw(canvas, &mut player, &map, &texture_creator);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
 }
@@ -144,8 +139,8 @@ fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground
     player.update(map, canvas_size)
 }
 
-fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player, map: &Vec<Vec<ground::Map>>) {
-    canvas.set_draw_color(Color::RGB(137, 206, 235));
+fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &Vec<Vec<ground::Map>>, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+    canvas.set_draw_color(Color::RGB(141, 183, 255));
     canvas.clear();
     canvas.set_draw_color(Color::BLACK);
     for item in map {
@@ -153,12 +148,12 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &Player,
             tile.draw(canvas);
         }
     }
-    player.draw(canvas);
+    player.draw(canvas, texture_creator);
     canvas.present();
 }
 
 fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
-    canvas.set_draw_color(Color::RGB(137, 206, 235));
+    canvas.set_draw_color(Color::RGB(141, 183, 255));
     canvas.clear();
     for button in buttons {
         button.draw(canvas, font, texture_creator);
