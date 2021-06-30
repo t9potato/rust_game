@@ -9,8 +9,10 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use std::time::Duration;
+use sdl2::image::LoadTexture;
 
 fn main() {
+    sdl2::image::init(sdl2::image::InitFlag::PNG).unwrap();
     let context = sdl2::init().unwrap();
     let ttf_context = sdl2::ttf::init().unwrap();
     let video_subsystem = context.video().unwrap();
@@ -34,6 +36,7 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
     ];
     let mut mouse = Mouse::new();
     let level: i32;
+    let texture = texture_creator.load_texture(std::path::Path::new("assets/title.png")).unwrap();
     'menu: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -77,19 +80,17 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
                 None => button.colision = false,
             }
         }
-        menu_draw(canvas, &mut buttons, &mouse, font, &texture_creator);
+        menu_draw(canvas, &mut buttons, &mouse, font, &texture_creator, &texture);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
     game(event_pump, canvas, level, texture_creator);
 }
 
 fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
-    sdl2::image::init(sdl2::image::InitFlag::PNG).unwrap();
     let mut left = false;
     let mut right = false;
 
 
-    use sdl2::image::LoadTexture;
     let map_textures = vec![
         texture_creator.load_texture(std::path::Path::new("assets/Tilemap.png")).unwrap(),
         texture_creator.load_texture(std::path::Path::new("assets/enemy.png")).unwrap(),
@@ -159,9 +160,10 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Pla
     canvas.present();
 }
 
-fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+fn menu_draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, buttons: &mut Vec::<button::Button>, mouse: &Mouse, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>, texture: &sdl2::render::Texture) {
     canvas.set_draw_color(Color::RGB(141, 183, 255));
     canvas.clear();
+    canvas.copy(texture, None, None).unwrap();
     for button in buttons {
         button.draw(canvas, font, texture_creator);
     }
