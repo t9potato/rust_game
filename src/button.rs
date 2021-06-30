@@ -58,6 +58,8 @@ impl Button {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
         }
         canvas.fill_rect(self.rect).unwrap();
+        canvas.set_draw_color(sdl2::pixels::Color::RGB(31, 16, 42));
+        canvas.draw_rect(self.rect).unwrap();
         let text_color = sdl2::pixels::Color::RGB(31, 16, 42);
         match self.action {
             Action::Quit => {
