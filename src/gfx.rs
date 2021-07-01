@@ -11,7 +11,7 @@ pub mod light {
     pub fn circle(radius: i32, color: sdl2::pixels::Color, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) -> sdl2::render::Texture {
         use sdl2::gfx::primitives::DrawRenderer;
 
-        let mut surf_canvas = sdl2::surface::Surface::new(radius as u32 * 2, radius as u32, sdl2::pixels::PixelFormatEnum::RGB888).unwrap().into_canvas().unwrap();
+        let mut surf_canvas = sdl2::surface::Surface::new(radius as u32 * 2, radius as u32 * 2, sdl2::pixels::PixelFormatEnum::RGB888).unwrap().into_canvas().unwrap();
         surf_canvas.filled_circle(radius as i16, radius as i16, radius as i16, color).unwrap();
         surf_canvas.present();
         let surface = surf_canvas.into_surface();

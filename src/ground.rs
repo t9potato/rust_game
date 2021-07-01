@@ -87,14 +87,18 @@ pub enum Map {
 }
 
 impl Map {
-    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, map_textures: &Vec<sdl2::render::Texture>) {
+    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, map_textures: &Vec<sdl2::render::Texture>) -> bool {
         match self {
             Map::Ground(ground) => ground.draw(canvas, &map_textures[0]),
             Map::Spike(spike) => spike.draw(canvas, &map_textures[1]),
             Map::Goal(goal) => goal.draw(canvas, &map_textures[2]),
-            Map::Torch(torch) => torch.draw(canvas, &map_textures[3]),
+            Map::Torch(torch) => {
+                torch.draw(canvas, &map_textures[3]);
+                return true;
+            }
             Map::Air => (),
-        }
+        };
+        false
     }
 }
 
@@ -105,7 +109,7 @@ pub struct Ground {
 }
 
 pub struct Torch {
-    pos: sdl2::rect::Rect,
+    pub pos: sdl2::rect::Rect,
     particles: Vec<gfx::particles::Full>,
     texture_rect: sdl2::rect::Rect,
     anim_timer: i32,

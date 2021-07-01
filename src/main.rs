@@ -17,17 +17,10 @@ fn main() {
     let context = sdl2::init().unwrap();
     let ttf_context = sdl2::ttf::init().unwrap();
     let video_subsystem = context.video().unwrap();
-    let window = video_subsystem
-        .window("Game", 2560, 1440)
-        .opengl()
-        .position_centered()
-        .build()
-        .unwrap();
+    let window = video_subsystem.window("Game", 2560, 1440).opengl().position_centered().build().unwrap();
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = context.event_pump().unwrap();
-    let mut font = ttf_context
-        .load_font(std::path::Path::new("assets/GnuUnifontFull-Pm9P.ttf"), 32)
-        .unwrap();
+    let mut font = ttf_context.load_font(std::path::Path::new("assets/GnuUnifontFull-Pm9P.ttf"), 32).unwrap();
     let texture_creator = canvas.texture_creator();
 
     canvas.set_draw_color(Color::RGB(135, 206, 235));
@@ -105,12 +98,7 @@ fn menu(
     game(event_pump, canvas, level, texture_creator);
 }
 
-fn game(
-    event_pump: &mut sdl2::EventPump,
-    canvas: &mut sdl2::render::Canvas<sdl2::video::Window>,
-    level: i32,
-    texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>,
-) {
+fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     let mut left = false;
     let mut right = false;
 
@@ -152,7 +140,7 @@ fn game(
         if let Some(level) = update(&mut player, left, right, &mut map, canvas.output_size().unwrap()) {
             map = ground::read(level);
         }
-        draw(canvas, &mut player, &mut map, &map_textures);
+        draw(canvas, &mut player, &mut map, &map_textures, texture_creator);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
 }
@@ -168,16 +156,36 @@ fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground
     player.update(map, canvas_size)
 }
 
-fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &mut Vec<Vec<ground::Map>>, map_textures: &Vec<sdl2::render::Texture>) {
+fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &mut Vec<Vec<ground::Map>>, map_textures: &Vec<sdl2::render::Texture>, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     canvas.set_draw_color(Color::RGB(141, 183, 255));
     canvas.clear();
     canvas.set_draw_color(Color::BLACK);
-    for item in map {
+    let mut x = 0;
+    let mut y = 0;
+    let mut pos: Vec<Vec2> = Vec::new();
+    for item in &mut *map {
         for tile in item {
-            tile.draw(canvas, &map_textures);
+            if tile.draw(canvas, &map_textures) {
+                pos.push(Vec2(x, y))
+            }
+            x += 1;
         }
+        y += 1;
+        x = 0;
     }
     player.draw(canvas);
+    let circle = gfx::light::circle(32, sdl2::pixels::Color::RGB(15, 15, 15), texture_creator);
+    for item in pos {
+        match &map[item.1 as usize][item.0 as usize] {
+            ground::Map::Torch(torch) => {
+                canvas.copy(&circle, None, sdl2::rect::Rect::new(torch.pos.x - 92, torch.pos.y - 120, 256, 256)).unwrap();
+                canvas.copy(&circle, None, sdl2::rect::Rect::new(torch.pos.x - 28, torch.pos.y - 56, 128, 128)).unwrap();
+                canvas.copy(&circle, None, sdl2::rect::Rect::new(torch.pos.x + 5, torch.pos.y - 26, 64, 64)).unwrap();
+                canvas.copy(&circle, None, sdl2::rect::Rect::new(torch.pos.x + 21, torch.pos.y - 10, 32, 32)).unwrap();
+            },
+            _ => (),
+        }
+    }
     canvas.present();
 }
 
