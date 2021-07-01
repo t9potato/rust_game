@@ -6,7 +6,7 @@ use sdl2::rect::Rect;
 pub struct Vec2(pub i32, pub i32);
 
 ///This class hase some spageti, but it is still decently readable
-pub struct Player <'a> {
+pub struct Player<'a> {
     pub rect: Rect,
     start_pos: Vec2,
     previous_position: Rect,
@@ -22,14 +22,19 @@ pub struct Player <'a> {
     animation_num: i32,
 }
 
-impl <'a> Player <'a> {
+impl<'a> Player<'a> {
     pub fn new(rect: Rect, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) -> Player {
         use sdl2::image::LoadTexture;
         Player {
             draw_rect: Rect::new(rect.x, rect.y + 1, rect.width(), rect.height()),
             rect: Rect::new(rect.x / 4, rect.y / 4, rect.width() / 4, rect.height() / 4),
             start_pos: Vec2(rect.x / 4, rect.y / 4),
-            previous_position: Rect::new(rect.x / 4, rect.y / 4, rect.width() / 4, rect.height() / 4),
+            previous_position: Rect::new(
+                rect.x / 4,
+                rect.y / 4,
+                rect.width() / 4,
+                rect.height() / 4,
+            ),
             vel: Vec2(0, 0),
             min_vel: Vec2(-2, -8),
             max_vel: Vec2(2, 8),
@@ -46,17 +51,17 @@ impl <'a> Player <'a> {
         match self.input {
             1 => {
                 self.vel.0 += 1;
-            },
+            }
             0 => {
                 if self.vel.0 < 0 {
                     self.vel.0 += 1;
                 } else if self.vel.0 > 0 {
                     self.vel.0 -= 1;
                 }
-            },
-            -1=> {
+            }
+            -1 => {
                 self.vel.0 -= 1;
-            },
+            }
             _ => (),
         }
 
@@ -65,11 +70,11 @@ impl <'a> Player <'a> {
         let ground_num = self.grounded(map, canvas_size);
         if ground_num == 0 {
             self.grounded = false;
-        } else if ground_num == 1{
+        } else if ground_num == 1 {
             self.grounded = true;
-        } else if ground_num > 1{
+        } else if ground_num > 1 {
             return Some(ground_num - 1);
-        } else if ground_num == -1{
+        } else if ground_num == -1 {
             self.vel = Vec2(0, 0);
             self.death_count += 1;
         }
@@ -93,7 +98,7 @@ impl <'a> Player <'a> {
     }
 
     fn jump(&mut self) {
-         self.vel.1 = -8;
+        self.vel.1 = -8;
     }
 
     fn grounded(&mut self, tiles: &mut Vec<Vec<Map>>, canvas_size: (u32, u32)) -> i32 {
@@ -106,34 +111,35 @@ impl <'a> Player <'a> {
         'map: for rows in tiles {
             for tile in rows {
                 match tile {
-                        Map::Ground(floor) => {
-                            if let Some(..) = self.rect.intersection(floor.rect) {
-                                match self.ajust_pos(floor.rect) {
-                                    1 => return_num = 1,
-                                    _ => (),
-                                }
-                            }},
-                        Map::Goal(goal) => {
-                            if let Some(..) = self.rect.intersection(goal.rect) {
-                                self.rect.x = self.start_pos.0;
-                                self.rect.y = self.start_pos.1;
-                                return 1 + goal.dest;
-                            }
-                        },
-                        Map::Spike(spike) => {
-                            if let Some(..) = self.rect.intersection(spike.rect) {
-                                if return_num == 0 {
-                                    return_num = -1;
-                                }
+                    Map::Ground(floor) => {
+                        if let Some(..) = self.rect.intersection(floor.rect) {
+                            match self.ajust_pos(floor.rect) {
+                                1 => return_num = 1,
+                                _ => (),
                             }
                         }
-                        Map::Air => (),
                     }
-                }
-                if return_num != 0 {
-                    break 'map;
+                    Map::Goal(goal) => {
+                        if let Some(..) = self.rect.intersection(goal.rect) {
+                            self.rect.x = self.start_pos.0;
+                            self.rect.y = self.start_pos.1;
+                            return 1 + goal.dest;
+                        }
+                    }
+                    Map::Spike(spike) => {
+                        if let Some(..) = self.rect.intersection(spike.rect) {
+                            if return_num == 0 {
+                                return_num = -1;
+                            }
+                        }
+                    }
+                    _ => (),
                 }
             }
+            if return_num != 0 {
+                break 'map;
+            }
+        }
         if return_num < 0 {
             self.rect.x = self.start_pos.0;
             self.rect.y = self.start_pos.1;
@@ -146,7 +152,7 @@ impl <'a> Player <'a> {
     }
 
     fn ajust_pos(&mut self, tile: Rect) -> i8 {
-        if self.previous_position.y + self.rect.h -1 <= tile.y {
+        if self.previous_position.y + self.rect.h - 1 <= tile.y {
             self.rect.y = tile.y - self.rect.h + 1;
             self.vel.1 = 0;
             return 1;
@@ -174,16 +180,20 @@ impl <'a> Player <'a> {
             self.animation_num = 0;
         }
         if self.animation_num < 49 {
-            canvas.copy(&self.texture, Rect::new(0,0,16,16), self.draw_rect).unwrap();
+            canvas
+                .copy(&self.texture, Rect::new(0, 0, 16, 16), self.draw_rect)
+                .unwrap();
         } else {
-            canvas.copy(&self.texture, Rect::new(16,0,16,16), self.draw_rect).unwrap();
+            canvas
+                .copy(&self.texture, Rect::new(16, 0, 16, 16), self.draw_rect)
+                .unwrap();
         }
     }
 }
 
 ///Function used to make there numbers in 1 vector fit inside the range of 2 other vectors by
 ///trimming
-fn clamp(num: &Vec2, min: &Vec2, max: &Vec2) -> Vec2{
+fn clamp(num: &Vec2, min: &Vec2, max: &Vec2) -> Vec2 {
     let mut ans = Vec2(num.0, num.1);
     if num.0 < min.0 {
         ans.0 = min.0

@@ -9,8 +9,8 @@ pub enum Action {
 impl Action {
     fn load() -> Action {
         use std::fs::File;
-        use std::path::Path;
         use std::io::prelude::*;
+        use std::path::Path;
         let path_string = "save".to_string();
         let path = Path::new(&path_string);
         let mut file = match File::open(&path) {
@@ -33,6 +33,7 @@ impl Action {
 
 pub struct Button {
     pub rect: sdl2::rect::Rect,
+    draw_rect: sdl2::rect::Rect,
     pub colision: bool,
     pub action: Action,
 }
@@ -41,6 +42,12 @@ impl Button {
     pub fn new(rect: sdl2::rect::Rect, action_in: Action) -> Button {
         Button {
             rect,
+            draw_rect: sdl2::rect::Rect::new(
+                rect.x + 4,
+                rect.y + 4,
+                rect.width() - 8,
+                rect.height() - 8,
+            ),
             action: match action_in {
                 Action::Quit => Action::Quit,
                 Action::Start => Action::Start,
@@ -50,33 +57,108 @@ impl Button {
         }
     }
 
-    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+    pub fn draw(
+        &self,
+        canvas: &mut sdl2::render::Canvas<sdl2::video::Window>,
+        font: &mut sdl2::ttf::Font,
+        texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>,
+    ) {
         use sdl2::rect::Rect;
         if self.colision {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(217, 189, 200));
         } else {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
         }
-        canvas.fill_rect(self.rect).unwrap();
+        canvas.fill_rect(self.draw_rect).unwrap();
         canvas.set_draw_color(sdl2::pixels::Color::RGB(31, 16, 42));
-        canvas.draw_rect(self.rect).unwrap();
+        canvas
+            .fill_rect(Rect::new(
+                self.rect.x + 4,
+                self.rect.y,
+                self.rect.width() - 8,
+                4,
+            ))
+            .unwrap();
+        canvas
+            .fill_rect(Rect::new(
+                self.rect.x + 4,
+                self.rect.y + self.rect.height() as i32 - 4,
+                self.rect.width() - 8,
+                4,
+            ))
+            .unwrap();
+        canvas
+            .fill_rect(Rect::new(
+                self.rect.x,
+                self.rect.y + 4,
+                4,
+                self.rect.height() - 8,
+            ))
+            .unwrap();
+        canvas
+            .fill_rect(Rect::new(
+                self.rect.x + self.rect.width() as i32 - 4,
+                self.rect.y + 4,
+                4,
+                self.rect.height() - 8,
+            ))
+            .unwrap();
         let text_color = sdl2::pixels::Color::RGB(31, 16, 42);
         match self.action {
             Action::Quit => {
                 let surface = font.render("QUIT").blended(text_color).unwrap();
-                let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
-                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 64, self.rect.y, 128, self.rect.height()))).unwrap();
-            },
+                let texture = texture_creator
+                    .create_texture_from_surface(&surface)
+                    .unwrap();
+                canvas
+                    .copy(
+                        &texture,
+                        None,
+                        Some(Rect::new(
+                            self.rect.center().x - 64,
+                            self.rect.y,
+                            128,
+                            self.rect.height(),
+                        )),
+                    )
+                    .unwrap();
+            }
             Action::Continue(..) => {
                 let surface = font.render("CONTINUE").blended(text_color).unwrap();
-                let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
-                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 128, self.rect.y, 256, self.rect.height()))).unwrap();
-            },
+                let texture = texture_creator
+                    .create_texture_from_surface(&surface)
+                    .unwrap();
+                canvas
+                    .copy(
+                        &texture,
+                        None,
+                        Some(Rect::new(
+                            self.rect.center().x - 128,
+                            self.rect.y,
+                            256,
+                            self.rect.height(),
+                        )),
+                    )
+                    .unwrap();
+            }
             Action::Start => {
                 let surface = font.render("START").blended(text_color).unwrap();
-                let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
-                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 80, self.rect.y, 160, self.rect.height()))).unwrap();
-            },
+                let texture = texture_creator
+                    .create_texture_from_surface(&surface)
+                    .unwrap();
+                canvas
+                    .copy(
+                        &texture,
+                        None,
+                        Some(Rect::new(
+                            self.rect.center().x - 80,
+                            self.rect.y,
+                            160,
+                            self.rect.height(),
+                        )),
+                    )
+                    .unwrap();
+            }
         }
     }
 
