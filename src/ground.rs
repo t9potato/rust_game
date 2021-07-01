@@ -1,4 +1,5 @@
 use sdl2::rect::Rect;
+use crate::gfx;
 use std::fs::File;
 use std::path::Path;
 
@@ -105,15 +106,18 @@ pub struct Ground {
 
 pub struct Torch {
     pos: sdl2::rect::Rect,
-    particles: Vec<crate::gfx::particles::Full>,
+    particles: Vec<gfx::particles::Full>,
+    texture_rect: sdl2::rect::Rect,
+    anim_timer: i32,
 }
 
 impl Torch {
     fn new(x: i32, y: i32) -> Torch{
-        println!("work");
         Torch {
             pos: sdl2::rect::Rect::new(x * 64, y * 64, 64, 64),
-            particles: Vec::new()
+            particles: Vec::new(),
+            anim_timer: 0,
+            texture_rect: sdl2::rect::Rect::new(0,0,16,16),
         }
     }
 
@@ -122,10 +126,23 @@ impl Torch {
         for particle in &self.particles {
             particle.draw(canvas);
         }
-        canvas.copy(texture, None, self.pos).unwrap();
+        canvas.copy(texture, self.texture_rect, self.pos).unwrap();
     }
     fn update(&mut self) {
-        self.particles.push(crate::gfx::particles::Full::new(self.pos.x + 32, self.pos.y + 12, 2, 2, 4.0, sdl2::pixels::Color::RGB(44, 44, 44)));
+        use rand::Rng;
+        self.particles.push(gfx::particles::Full::new(
+                (self.pos.x + 24) as f32,
+                (self.pos.y + 9) as f32,
+                rand::thread_rng().gen_range(-2.0..=2.0),
+                rand::thread_rng().gen_range(-2.0..=2.0),
+                2.0,
+                match rand::thread_rng().gen_range(0..4) {
+                    0 => sdl2::pixels::Color::RGB(255, 255, 255),
+                    1 => sdl2::pixels::Color::RGB(252, 239, 141),
+                    2 => sdl2::pixels::Color::RGB(234, 98, 98),
+                    _ => sdl2::pixels::Color::RGB(234, 98, 98),
+                }
+                ));
         let mut index = 0;
         let mut indexes: Vec<usize> = Vec::new();
         for particle in &mut self.particles {
@@ -139,6 +156,20 @@ impl Torch {
             self.particles.remove(item - index);
             index += 1;
         }
+
+        if self.anim_timer == 20 {
+            self.anim_timer = 0;
+        }
+        if self.anim_timer < 5 {
+            self.texture_rect = sdl2::rect::Rect::new(0,0,16,16);
+        } else if self.anim_timer < 10 {
+            self.texture_rect = sdl2::rect::Rect::new(16,0,16,16);
+        } else if self.anim_timer < 15 {
+            self.texture_rect = sdl2::rect::Rect::new(32,0,16,16);
+        } else if self.anim_timer < 20 {
+            self.texture_rect = sdl2::rect::Rect::new(48,0,16,16);
+        }
+        self.anim_timer += 1;
     }
 }
 

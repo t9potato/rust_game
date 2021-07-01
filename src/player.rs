@@ -180,13 +180,9 @@ impl<'a> Player<'a> {
             self.animation_num = 0;
         }
         if self.animation_num < 49 {
-            canvas
-                .copy(&self.texture, Rect::new(0, 0, 16, 16), self.draw_rect)
-                .unwrap();
+            canvas.copy(&self.texture, Rect::new(0, 0, 16, 16), self.draw_rect).unwrap();
         } else {
-            canvas
-                .copy(&self.texture, Rect::new(16, 0, 16, 16), self.draw_rect)
-                .unwrap();
+            canvas.copy(&self.texture, Rect::new(16, 0, 16, 16), self.draw_rect).unwrap();
         }
     }
 }

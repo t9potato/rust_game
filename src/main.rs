@@ -47,7 +47,7 @@ fn menu(
         Button::new(Rect::new(1158, 1182, 512, 64), Action::Continue(1)),
         Button::new(Rect::new(1158, 1280, 512, 64), Action::Quit),
     ];
-    let mut mouse = Mouse::new();
+    let mut mouse = Mouse::new(texture_creator);
     let level: i32;
     let texture = texture_creator
         .load_texture(std::path::Path::new("assets/title.png"))

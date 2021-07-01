@@ -22,8 +22,7 @@ impl Action {
             Ok(_) => (),
             Err(_) => return Action::Start,
         };
-        //find error
-        //println!("{}", data);
+
         match data.trim().parse::<i32>() {
             Ok(num) => return Action::Continue(num),
             Err(_) => return Action::Start,
@@ -57,12 +56,7 @@ impl Button {
         }
     }
 
-    pub fn draw(
-        &self,
-        canvas: &mut sdl2::render::Canvas<sdl2::video::Window>,
-        font: &mut sdl2::ttf::Font,
-        texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>,
-    ) {
+    pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
         use sdl2::rect::Rect;
         if self.colision {
             canvas.set_draw_color(sdl2::pixels::Color::RGB(217, 189, 200));
@@ -71,38 +65,10 @@ impl Button {
         }
         canvas.fill_rect(self.draw_rect).unwrap();
         canvas.set_draw_color(sdl2::pixels::Color::RGB(31, 16, 42));
-        canvas
-            .fill_rect(Rect::new(
-                self.rect.x + 4,
-                self.rect.y,
-                self.rect.width() - 8,
-                4,
-            ))
-            .unwrap();
-        canvas
-            .fill_rect(Rect::new(
-                self.rect.x + 4,
-                self.rect.y + self.rect.height() as i32 - 4,
-                self.rect.width() - 8,
-                4,
-            ))
-            .unwrap();
-        canvas
-            .fill_rect(Rect::new(
-                self.rect.x,
-                self.rect.y + 4,
-                4,
-                self.rect.height() - 8,
-            ))
-            .unwrap();
-        canvas
-            .fill_rect(Rect::new(
-                self.rect.x + self.rect.width() as i32 - 4,
-                self.rect.y + 4,
-                4,
-                self.rect.height() - 8,
-            ))
-            .unwrap();
+        canvas.fill_rect(Rect::new(self.rect.x + 4, self.rect.y, self.rect.width() - 8, 4)).unwrap();
+        canvas.fill_rect(Rect::new( self.rect.x + 4, self.rect.y + self.rect.height() as i32 - 4, self.rect.width() - 8, 4)).unwrap();
+        canvas.fill_rect(Rect::new(self.rect.x, self.rect.y + 4, 4, self.rect.height() - 8)).unwrap();
+        canvas.fill_rect(Rect::new(self.rect.x + self.rect.width() as i32 - 4, self.rect.y + 4, 4, self.rect.height() - 8)).unwrap();
         let text_color = sdl2::pixels::Color::RGB(31, 16, 42);
         match self.action {
             Action::Quit => {
@@ -110,54 +76,17 @@ impl Button {
                 let texture = texture_creator
                     .create_texture_from_surface(&surface)
                     .unwrap();
-                canvas
-                    .copy(
-                        &texture,
-                        None,
-                        Some(Rect::new(
-                            self.rect.center().x - 64,
-                            self.rect.y,
-                            128,
-                            self.rect.height(),
-                        )),
-                    )
-                    .unwrap();
+                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 64, self.rect.y, 128, self.rect.height()))).unwrap();
             }
             Action::Continue(..) => {
                 let surface = font.render("CONTINUE").blended(text_color).unwrap();
-                let texture = texture_creator
-                    .create_texture_from_surface(&surface)
-                    .unwrap();
-                canvas
-                    .copy(
-                        &texture,
-                        None,
-                        Some(Rect::new(
-                            self.rect.center().x - 128,
-                            self.rect.y,
-                            256,
-                            self.rect.height(),
-                        )),
-                    )
-                    .unwrap();
+                let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 128, self.rect.y, 256, self.rect.height()))).unwrap();
             }
             Action::Start => {
                 let surface = font.render("START").blended(text_color).unwrap();
-                let texture = texture_creator
-                    .create_texture_from_surface(&surface)
-                    .unwrap();
-                canvas
-                    .copy(
-                        &texture,
-                        None,
-                        Some(Rect::new(
-                            self.rect.center().x - 80,
-                            self.rect.y,
-                            160,
-                            self.rect.height(),
-                        )),
-                    )
-                    .unwrap();
+                let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 80, self.rect.y, 160, self.rect.height()))).unwrap();
             }
         }
     }
@@ -172,22 +101,25 @@ impl Button {
 }
 
 ///A basic character to replicate the mouse so it can be used with a joystick
-pub struct Mouse {
+pub struct Mouse <'a> {
     pub rect: sdl2::rect::Rect,
     pub up: bool,
     pub down: bool,
     pub left: bool,
     pub right: bool,
+    texture: sdl2::render::Texture<'a>,
 }
 
-impl Mouse {
-    pub fn new() -> Mouse {
+impl <'a> Mouse <'a> {
+    pub fn new(texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) -> Mouse {
+        use sdl2::image::LoadTexture;
         Mouse {
             rect: sdl2::rect::Rect::new(1264, 704, 32, 32),
             up: false,
             down: false,
             left: false,
             right: false,
+            texture: texture_creator.load_texture("assets/cursor.png").unwrap(),
         }
     }
 
@@ -207,7 +139,6 @@ impl Mouse {
     }
 
     pub fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
-        canvas.set_draw_color(sdl2::pixels::Color::RGB(152, 0, 0));
-        canvas.fill_rect(self.rect).unwrap();
+            canvas.copy(&self.texture, None, self.rect).unwrap();
     }
 }
