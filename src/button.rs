@@ -1,5 +1,3 @@
-use sdl2;
-
 pub enum Action {
     Start,
     Continue(i32),
@@ -24,8 +22,8 @@ impl Action {
         };
 
         match data.trim().parse::<i32>() {
-            Ok(num) => return Action::Continue(num),
-            Err(_) => return Action::Start,
+            Ok(num) => Action::Continue(num),
+            Err(_) => Action::Start,
         }
     }
 }

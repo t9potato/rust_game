@@ -36,9 +36,9 @@ pub mod particles {
             Full {
                 x,
                 y,
-                radius,
                 vel_x,
                 vel_y,
+                radius,
                 color
             }
         }

@@ -2,6 +2,7 @@
 
 use crate::ground::*;
 use sdl2::rect::Rect;
+use crate::gfx;
 
 pub struct Vec2(pub i32, pub i32);
 
@@ -20,6 +21,7 @@ pub struct Player<'a> {
     grounded: bool,
     texture: sdl2::render::Texture<'a>,
     animation_num: i32,
+    particles: Vec<gfx::particles::Full>,
 }
 
 impl<'a> Player<'a> {
@@ -44,19 +46,21 @@ impl<'a> Player<'a> {
             death_count: 0,
             texture: texture_creator.load_texture("assets/Player.png").unwrap(),
             animation_num: 0,
+            particles: Vec::new(),
         }
     }
 
     pub fn update(&mut self, map: &mut Vec<Vec<Map>>, canvas_size: (u32, u32)) -> Option<i32> {
+        use std::cmp::Ordering;
         match self.input {
             1 => {
                 self.vel.0 += 1;
             }
             0 => {
-                if self.vel.0 < 0 {
-                    self.vel.0 += 1;
-                } else if self.vel.0 > 0 {
-                    self.vel.0 -= 1;
+                match self.vel.0.cmp(&0) {
+                    Ordering::Greater => self.vel.0 -= 1,
+                    Ordering::Less => self.vel.0 += 1,
+                    Ordering::Equal => ()
                 }
             }
             -1 => {
@@ -113,9 +117,8 @@ impl<'a> Player<'a> {
                 match tile {
                     Map::Ground(floor) => {
                         if let Some(..) = self.rect.intersection(floor.rect) {
-                            match self.ajust_pos(floor.rect) {
-                                1 => return_num = 1,
-                                _ => (),
+                            if self.ajust_pos(floor.rect) == 1 {
+                                return_num = 1;
                             }
                         }
                     }
