@@ -35,7 +35,6 @@ pub fn read(level: i32) -> Vec<Vec<Map>> {
         map.push(Vec::new());
         for item in line {
             match *item {
-                //"0" => ground::Map::Air,
                 "1" => {
                     let mut args = (false, false, false, false);
                     if y != 0 && content[y - 1][x] == "1" {
@@ -51,7 +50,7 @@ pub fn read(level: i32) -> Vec<Vec<Map>> {
                         args.3 = true;
                     }
                     map[y].push(Map::Ground(Ground::new(x as i32, y as i32, args)));
-                }
+                },
                 "2" => {
                     let pos: bool;
                     if y == 0 || content[y - 1][x] != "2" {
@@ -60,14 +59,14 @@ pub fn read(level: i32) -> Vec<Vec<Map>> {
                         pos = false;
                     }
                     map[y].push(Map::Goal(Goal::new(x as i32, y as i32, level + 1, pos)));
-                }
+                },
                 "3" => {
                     map[y].push(Map::Spike(Spike::new(x as i32, y as i32)));
-                }
+                },
                 "4" => { 
                     map[y].push(Map::Torch(Torch::new(x as i32, y as i32)));
-                }
-                _ => map[y].push(Map::Air),
+                },
+                _ => (),
             }
             x += 1;
         }
@@ -79,7 +78,6 @@ pub fn read(level: i32) -> Vec<Vec<Map>> {
 
 ///Usful rust enum to store map data
 pub enum Map {
-    Air,
     Ground(Ground),
     Goal(Goal),
     Spike(Spike),
@@ -96,7 +94,6 @@ impl Map {
                 torch.draw(canvas, &map_textures[3]);
                 return true;
             }
-            Map::Air => (),
         };
         false
     }

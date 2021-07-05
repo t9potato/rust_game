@@ -136,11 +136,12 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
             }
         }
 
+        draw(canvas, &mut player, &mut map, &map_textures, texture_creator);
+
         if let Some(level) = update(&mut player, left, right, &mut map, canvas.output_size().unwrap()) {
             enter_door(canvas, &mut map, &map_textures, texture_creator);
             map = ground::read(level);
         }
-        draw(canvas, &mut player, &mut map, &map_textures, texture_creator);
         std::thread::sleep(Duration::new(0, 1000000000u32 / 60));
     }
 }
@@ -172,7 +173,8 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Pla
         x = 0;
     }
     player.draw(canvas);
-    let circle = gfx::light::circle(32, sdl2::pixels::Color::RGB(15, 15, 15), texture_creator);
+    
+    let circle = gfx::light::circle(32, Color::RGB(15, 15, 15), texture_creator);
     for item in pos {
         if let ground::Map::Torch(torch) = &map[item.1 as usize][item.0 as usize] {
             canvas.copy(&circle, None, sdl2::rect::Rect::new(torch.pos.x - 92, torch.pos.y - 120, 256, 256)).unwrap();
@@ -203,7 +205,6 @@ fn enter_door(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, map: &mut 
                 if  rect.is_none() {
                     rect = Some(Rect::new(pos.draw_rect.x - 64, pos.draw_rect.y, 128, 192));
                 }
-                *tile = ground::Map::Air;
             }
         }
     }
