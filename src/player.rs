@@ -3,6 +3,7 @@
 use crate::ground::*;
 use sdl2::rect::Rect;
 use crate::gfx;
+use rand::Rng;
 use std::cmp::Ordering;
 
 pub struct Vec2(pub i32, pub i32);
@@ -18,12 +19,13 @@ pub struct Player<'a> {
     max_vel: Vec2,
     pub input: i8,
     pub jump: bool,
-    pub death_count: i8,
+    pub death_count: u16,
     grounded: bool,
     texture: sdl2::render::Texture<'a>,
     animation_num: i32,
     particles: Vec<gfx::particles::Full>,
     particle_delay: i32,
+    sounds: Vec<sdl2::mixer::Chunk>,
 }
 
 impl<'a> Player<'a> {
@@ -50,6 +52,7 @@ impl<'a> Player<'a> {
             animation_num: 0,
             particles: Vec::new(),
             particle_delay: 0,
+            sounds: vec![sdl2::mixer::Chunk::from_file(std::path::Path::new("assets/die.wav")).unwrap()],
         }
     }
 
@@ -79,6 +82,11 @@ impl<'a> Player<'a> {
         } else if ground_num > 1 {
             return Some(ground_num - 1);
         } else if ground_num == -1 {
+            for _ in 0..15 {
+                self.particles.push(gfx::particles::Full::new((self.draw_rect.x + 32) as f32, (self.draw_rect.y + 32) as f32, rand::thread_rng().gen_range(0.0..1.0) * -self.vel.0 as f32,
+                rand::thread_rng().gen_range(0.0..1.0) * self.vel.1 as f32, rand::thread_rng().gen_range(1.0..3.0), sdl2::pixels::Color::BLACK));
+            }
+            sdl2::mixer::Channel::all().play(&self.sounds[0], -1).unwrap();
             self.vel = Vec2(0, 0);
             self.rect.x = self.start_pos.0;
             self.rect.y = self.start_pos.1;
@@ -119,8 +127,8 @@ impl<'a> Player<'a> {
     }
 
     fn mov_pos(&mut self, map: &mut Vec<Vec<Map>>, canvas_size: (u32, u32)) -> i32 {
-        self.rect.x += self.vel.0;
         let mut return_val = 0;
+        self.rect.x += self.vel.0;
         let mut collisions: Vec<&Map> = Vec::new();
 
         for row in &*map {
@@ -144,24 +152,28 @@ impl<'a> Player<'a> {
         }
 
         for tile in collisions {
-            if self.vel.0 < 0 {
-                match tile {
-                    Map::Ground(ground) => self.rect.x = ground.rect.w + ground.rect.x,
-                    Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
-                        return_val = -1;
-                    },
-                    _ => (),
-                };
-            } else if self.vel.0 > 0 {
-                match tile {
-                    Map::Ground(ground) => self.rect.x = ground.rect.x - self.rect.w,
-                    Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
-                        return_val = -1;
-                    },
-                    _ => (),
-                };
+            match self.vel.0.cmp(&0) {
+                Ordering::Greater => {
+                    match tile {
+                        Map::Ground(ground) => self.rect.x = ground.rect.x - self.rect.w,
+                        Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
+                            return_val = -1;
+                        },
+                        _ => (),
+                    };
+                },
+                Ordering::Less => {
+                    match tile {
+                        Map::Ground(ground) => self.rect.x = ground.rect.w + ground.rect.x,
+                        Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
+                            return_val = -1;
+                        },
+                        _ => (),
+                    };
+                },
+                _ => (),
             }
-        }
+        };
 
         if return_val != 0 {
             return return_val
@@ -195,53 +207,55 @@ impl<'a> Player<'a> {
         }
 
         for tile in collisions {
-            if self.vel.1 < 0 {
-                match tile {
-                    Map::Ground(ground) => self.rect.y = ground.rect.y + self.rect.h,
-                    Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
-                        return_val = -1;
-                    },
-                    _ => (),
-                };
-            } else if self.vel.1 > 0 {
-                match tile {
-                    Map::Ground(ground) => {
-                        self.grounded = true;
-                        self.rect.y = ground.rect.y - ground.rect.h;
-                        return_val = 1;
-                    },
-                    Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
-                        return_val = -1;
-                    },
-                    _ => (),
-                };
-            }
+            match self.vel.1.cmp(&0) {
+                Ordering::Greater => {
+                    match tile {
+                        Map::Ground(ground) => {
+                            self.grounded = true;
+                            self.rect.y = ground.rect.y - ground.rect.h;
+                            return_val = 1;
+                        },
+                        Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
+                            return_val = -1;
+                        },
+                        _ => (),
+                    };
+                },
+                Ordering::Less => {
+                    match tile {
+                        Map::Ground(ground) => self.rect.y = ground.rect.y + self.rect.h,
+                        Map::Spike(spike) => if let Some(..) = self.rect.intersection(spike.rect) {
+                            return_val = -1;
+                        },
+                        _ => (),
+                    };
+                },
+                _ => (),
+            };
         }
 
-        return return_val;
+        return_val
     }
 
 
     fn jump(&mut self) {
-        use rand::Rng;
-
         self.vel.1 = -8;
         if self.particle_delay == 0 {
             let num = rand::thread_rng().gen_range(10..20);
             for _ in 0..num {
                 self.particles.push(gfx::particles::Full::new (
-                    (self.draw_rect.x + 32) as f32,
-                    (self.draw_rect.y + 64) as f32,
-                    rand::thread_rng().gen_range(-2.0..=2.0),
-                    rand::thread_rng().gen_range(-2.0..=2.0),
-                    rand::thread_rng().gen_range(1.9..2.5),
-                    match rand::thread_rng().gen_range(0..4) {
-                        0 => sdl2::pixels::Color::RGB(204, 66, 94),
-                        1 => sdl2::pixels::Color::RGB(163, 40, 88),
-                        2 => sdl2::pixels::Color::RGB(107, 201, 108),
-                        _ => sdl2::pixels::Color::RGB(91, 166, 117),
-                    },
-                ));
+                        (self.draw_rect.x + 32) as f32,
+                        (self.draw_rect.y + 64) as f32,
+                        rand::thread_rng().gen_range(-2.0..=2.0),
+                        rand::thread_rng().gen_range(-2.0..=2.0),
+                        rand::thread_rng().gen_range(1.9..2.5),
+                        match rand::thread_rng().gen_range(0..4) {
+                            0 => sdl2::pixels::Color::RGB(204, 66, 94),
+                            1 => sdl2::pixels::Color::RGB(163, 40, 88),
+                            2 => sdl2::pixels::Color::RGB(107, 201, 108),
+                            _ => sdl2::pixels::Color::RGB(91, 166, 117),
+                        },
+                        ));
             }
             self.particle_delay = 10;
         }
@@ -251,7 +265,7 @@ impl<'a> Player<'a> {
         self.vel.1 += 1;
     }
 
-    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    pub fn draw(&mut self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
         self.animation_num += 1;
         if self.animation_num == 54 {
             self.animation_num = 0;
@@ -265,6 +279,11 @@ impl<'a> Player<'a> {
         for particle in &self.particles {
             particle.draw(canvas);
         }
+
+        let surface = font.render(format!("Deaths: {}", self.death_count).as_str()).blended(sdl2::pixels::Color::RGB(31, 16, 42)).unwrap();
+        let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+        canvas.copy(&texture, None, Some(Rect::new(16, 16, format!("Deaths: {}", self.death_count).len() as u32 * 16, 16))).unwrap();
+
     }
 }
 

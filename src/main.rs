@@ -32,7 +32,7 @@ fn main() {
     let chunk_size = 1_024;
     sdl2::mixer::open_audio(frequency, format, channels, chunk_size).unwrap();
 
-    let sound_chunk = sdl2::mixer::Chunk::from_file(Path::new("assets/BeepBox-Song.flac")).unwrap();
+    let sound_chunk = sdl2::mixer::Chunk::from_file(Path::new("assets/BeepBox-Song.wav")).unwrap();
     sdl2::mixer::Channel::all().play(&sound_chunk, -1).unwrap();
 
     canvas.set_draw_color(Color::RGB(135, 206, 235));
@@ -93,7 +93,7 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
 
         menu_draw(canvas, &mut buttons, &mouse, font, &texture_creator, &texture);
         if level != 0 {
-            game(event_pump, canvas, level, texture_creator);
+            game(event_pump, canvas, level, texture_creator, font);
             level = 0;
         }
 
@@ -101,7 +101,8 @@ fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
     }
 }
 
-fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>,
+        level: i32, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>, font: &mut sdl2::ttf::Font) {
     let mut left = false;
     let mut right = false;
 
@@ -136,7 +137,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
             }
         }
 
-        draw(canvas, &mut player, &mut map, &map_textures, texture_creator);
+        draw(canvas, &mut player, &mut map, &map_textures, texture_creator, font);
 
         if let Some(level) = update(&mut player, left, right, &mut map, canvas.output_size().unwrap()) {
             enter_door(canvas, &mut map, &map_textures, texture_creator);
@@ -157,7 +158,9 @@ fn update(player: &mut Player, left: bool, right: bool, map: &mut Vec<Vec<ground
     player.update(map, canvas_size)
 }
 
-fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &mut Vec<Vec<ground::Map>>, map_textures: &[sdl2::render::Texture], texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
+fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Player, map: &mut Vec<Vec<ground::Map>>,
+        map_textures: &[sdl2::render::Texture], texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>,
+        font: &mut sdl2::ttf::Font) {
     canvas.set_draw_color(Color::RGB(141, 183, 255));
     canvas.clear();
     canvas.set_draw_color(Color::BLACK);
@@ -172,7 +175,7 @@ fn draw(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, player: &mut Pla
         }
         x = 0;
     }
-    player.draw(canvas);
+    player.draw(canvas, font, texture_creator);
     
     let circle = gfx::light::circle(32, Color::RGB(15, 15, 15), texture_creator);
     for item in pos {
