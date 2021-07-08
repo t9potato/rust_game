@@ -52,7 +52,10 @@ impl<'a> Player<'a> {
             animation_num: 0,
             particles: Vec::new(),
             particle_delay: 0,
-            sounds: vec![sdl2::mixer::Chunk::from_file(std::path::Path::new("assets/die.wav")).unwrap()],
+            sounds: vec![
+                sdl2::mixer::Chunk::from_file(std::path::Path::new("assets/die.wav")).unwrap(),
+                sdl2::mixer::Chunk::from_file(std::path::Path::new("assets/jump.wav")).unwrap(),
+            ],
         }
     }
 
@@ -86,7 +89,7 @@ impl<'a> Player<'a> {
                 self.particles.push(gfx::particles::Full::new((self.draw_rect.x + 32) as f32, (self.draw_rect.y + 32) as f32, rand::thread_rng().gen_range(0.0..1.0) * -self.vel.0 as f32,
                 rand::thread_rng().gen_range(0.0..1.0) * self.vel.1 as f32, rand::thread_rng().gen_range(1.0..3.0), sdl2::pixels::Color::BLACK));
             }
-            sdl2::mixer::Channel::all().play(&self.sounds[0], -1).unwrap();
+            sdl2::mixer::Channel::all().play(&self.sounds[0], 0).unwrap();
             self.vel = Vec2(0, 0);
             self.rect.x = self.start_pos.0;
             self.rect.y = self.start_pos.1;
@@ -258,6 +261,7 @@ impl<'a> Player<'a> {
                         ));
             }
             self.particle_delay = 10;
+            sdl2::mixer::Channel::all().play(&self.sounds[1], 0).unwrap();
         }
     }
 
