@@ -1,11 +1,12 @@
 pub enum Action {
     Start,
-    Continue(i32),
+    Continue(fn()->i32),
     Quit,
 }
 
 impl Action {
     fn load() -> Action {
+        Action::Continue(||{
         use std::fs::File;
         use std::io::prelude::*;
         use std::path::Path;
@@ -13,18 +14,19 @@ impl Action {
         let path = Path::new(&path_string);
         let mut file = match File::open(&path) {
             Ok(num) => num,
-            _ => return Action::Start,
+            _ => return 1,
         };
         let mut data = String::new();
         match file.read_to_string(&mut data) {
             Ok(_) => (),
-            Err(_) => return Action::Start,
+            Err(_) => return 1,
         };
 
         match data.trim().parse::<i32>() {
-            Ok(num) => Action::Continue(num),
-            Err(_) => Action::Start,
+            Ok(num) => num,
+            Err(_) => 1,
         }
+        })
     }
 }
 
@@ -93,7 +95,7 @@ impl Button {
         match self.action {
             Action::Quit => std::process::exit(0),
             Action::Start => 1,
-            Action::Continue(num) => num,
+            Action::Continue(num) => num(),
         }
     }
 }

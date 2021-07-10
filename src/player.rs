@@ -19,8 +19,9 @@ pub struct Player<'a> {
     max_vel: Vec2,
     pub input: i8,
     pub jump: bool,
-    pub death_count: u16,
     grounded: bool,
+    pub death_count: u16,
+    death_texture: sdl2::render::Texture<'a>,
     texture: sdl2::render::Texture<'a>,
     animation_num: i32,
     particles: Vec<gfx::particles::Full>,
@@ -48,6 +49,7 @@ impl<'a> Player<'a> {
             jump: false,
             grounded: false,
             death_count: 0,
+            death_texture: texture_creator.load_texture("assets/death.png").unwrap(),
             texture: texture_creator.load_texture("assets/Player.png").unwrap(),
             animation_num: 0,
             particles: Vec::new(),
@@ -80,15 +82,13 @@ impl<'a> Player<'a> {
         self.vel = clamp(&self.vel, &self.min_vel, &self.max_vel);
         let ground_num = self.mov_pos(map, canvas_size);
 
-        if ground_num == 0 {
-        } else if ground_num == 1 {
-        } else if ground_num > 1 {
+        if ground_num > 1 {
             return Some(ground_num - 1);
         } else if ground_num == -1 {
-            for _ in 0..15 {
+            (0..15).into_iter().for_each(|_| (
                 self.particles.push(gfx::particles::Full::new((self.draw_rect.x + 32) as f32, (self.draw_rect.y + 32) as f32, rand::thread_rng().gen_range(0.0..1.0) * -self.vel.0 as f32,
-                rand::thread_rng().gen_range(0.0..1.0) * self.vel.1 as f32, rand::thread_rng().gen_range(1.0..3.0), sdl2::pixels::Color::BLACK));
-            }
+                rand::thread_rng().gen_range(0.0..1.0) * self.vel.1 as f32, rand::thread_rng().gen_range(1.0..3.0), sdl2::pixels::Color::BLACK))
+            ));
             sdl2::mixer::Channel::all().play(&self.sounds[0], 0).unwrap();
             self.vel = Vec2(0, 0);
             self.rect.x = self.start_pos.0;
@@ -245,7 +245,7 @@ impl<'a> Player<'a> {
         self.vel.1 = -8;
         if self.particle_delay == 0 {
             let num = rand::thread_rng().gen_range(10..20);
-            for _ in 0..num {
+            (0..num).into_iter().for_each(|_| {
                 self.particles.push(gfx::particles::Full::new (
                         (self.draw_rect.x + 32) as f32,
                         (self.draw_rect.y + 64) as f32,
@@ -259,7 +259,7 @@ impl<'a> Player<'a> {
                             _ => sdl2::pixels::Color::RGB(91, 166, 117),
                         },
                         ));
-            }
+            });
             self.particle_delay = 10;
             sdl2::mixer::Channel::all().play(&self.sounds[1], 0).unwrap();
         }
@@ -284,9 +284,10 @@ impl<'a> Player<'a> {
             particle.draw(canvas);
         }
 
-        let surface = font.render(format!("Deaths: {}", self.death_count).as_str()).blended(sdl2::pixels::Color::RGB(31, 16, 42)).unwrap();
+        let surface = font.render(format!(":{}", self.death_count).as_str()).blended(sdl2::pixels::Color::RGB(31, 16, 42)).unwrap();
         let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
-        canvas.copy(&texture, None, Some(Rect::new(16, 16, format!("Deaths: {}", self.death_count).len() as u32 * 16, 16))).unwrap();
+        canvas.copy(&self.death_texture, None, Some(Rect::new(16, 16, 64, 64))).unwrap();
+        canvas.copy(&texture, None, Some(Rect::new(80, 16, format!(":{}", self.death_count).len() as u32 * 64, 64))).unwrap();
 
     }
 }
