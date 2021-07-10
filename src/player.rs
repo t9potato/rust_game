@@ -5,6 +5,9 @@ use sdl2::rect::Rect;
 use crate::gfx;
 use rand::Rng;
 use std::cmp::Ordering;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 
 pub struct Vec2(pub i32, pub i32);
 
@@ -48,7 +51,7 @@ impl<'a> Player<'a> {
             input: 0,
             jump: false,
             grounded: false,
-            death_count: 0,
+            death_count: Player::load_deaths(),
             death_texture: texture_creator.load_texture("assets/death.png").unwrap(),
             texture: texture_creator.load_texture("assets/Player.png").unwrap(),
             animation_num: 0,
@@ -94,6 +97,7 @@ impl<'a> Player<'a> {
             self.rect.x = self.start_pos.0;
             self.rect.y = self.start_pos.1;
             self.death_count += 1;
+            self.write_deaths();
         }
         if self.jump && self.grounded {
             self.jump();
@@ -289,6 +293,28 @@ impl<'a> Player<'a> {
         canvas.copy(&self.death_texture, None, Some(Rect::new(16, 16, 64, 64))).unwrap();
         canvas.copy(&texture, None, Some(Rect::new(80, 16, format!(":{}", self.death_count).len() as u32 * 32, 64))).unwrap();
 
+    }
+
+    fn load_deaths() -> u16{
+        let path = Path::new("playersave");
+        let mut file = match File::open(&path) {
+            Ok(num) => num,
+            _ => return 0,
+        };
+        let mut data = String::new();
+        match file.read_to_string(&mut data) {
+            Ok(_) => (),
+            Err(_) => return 0,
+        };
+
+        match data.trim().parse::<u16>() {
+            Ok(num) => num,
+            Err(_) => 0,
+        }
+    }
+
+    fn write_deaths(&mut self) {
+        std::fs::write(std::path::Path::new("playersave"), self.death_count.to_string()).unwrap();
     }
 }
 
