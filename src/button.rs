@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+
 pub enum Action {
     Start,
     Continue(fn()->i32),
@@ -8,11 +12,7 @@ pub enum Action {
 impl Action {
     fn load() -> Action {
         Action::Continue(||{
-        use std::fs::File;
-        use std::io::prelude::*;
-        use std::path::Path;
-        let path_string = "save".to_string();
-        let path = Path::new(&path_string);
+        let path = Path::new("save");
         let mut file = match File::open(&path) {
             Ok(num) => num,
             _ => return 1,
@@ -103,7 +103,10 @@ impl Button {
             Action::Quit => std::process::exit(0),
             Action::Start => 1,
             Action::Continue(num) => num(),
-            Action::ClearSave => 0,
+            Action::ClearSave => {
+                std::fs::write(Path::new("save"), "0").unwrap();
+                std::fs::write(Path::new("playersave"), "0").unwrap();
+            0},
         }
     }
 }
