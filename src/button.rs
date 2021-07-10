@@ -1,6 +1,7 @@
 pub enum Action {
     Start,
     Continue(fn()->i32),
+    ClearSave,
     Quit,
 }
 
@@ -50,6 +51,7 @@ impl Button {
             action: match action_in {
                 Action::Quit => Action::Quit,
                 Action::Start => Action::Start,
+                Action::ClearSave => Action::ClearSave,
                 Action::Continue(_) => Action::load(),
             },
             colision: false,
@@ -88,6 +90,11 @@ impl Button {
                 let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
                 canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 80, self.rect.y, 160, self.rect.height()))).unwrap();
             }
+            Action::ClearSave => {
+                let surface = font.render("CLEAR SAVE").blended(text_color).unwrap();
+                let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+                canvas.copy(&texture, None, Some(Rect::new(self.rect.center().x - 160, self.rect.y, 320, 64))).unwrap();
+            }
         }
     }
 
@@ -96,6 +103,7 @@ impl Button {
             Action::Quit => std::process::exit(0),
             Action::Start => 1,
             Action::Continue(num) => num(),
+            Action::ClearSave => 0,
         }
     }
 }

@@ -287,7 +287,7 @@ impl<'a> Player<'a> {
         let surface = font.render(format!(":{}", self.death_count).as_str()).blended(sdl2::pixels::Color::RGB(31, 16, 42)).unwrap();
         let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
         canvas.copy(&self.death_texture, None, Some(Rect::new(16, 16, 64, 64))).unwrap();
-        canvas.copy(&texture, None, Some(Rect::new(80, 16, format!(":{}", self.death_count).len() as u32 * 64, 64))).unwrap();
+        canvas.copy(&texture, None, Some(Rect::new(80, 16, format!(":{}", self.death_count).len() as u32 * 32, 64))).unwrap();
 
     }
 }

@@ -43,9 +43,10 @@ fn main() {
 
 fn menu(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, font: &mut sdl2::ttf::Font, texture_creator: &sdl2::render::TextureCreator<sdl2::video::WindowContext>) {
     let mut buttons = vec![
-        Button::new(Rect::new(1158, 1088, 512, 64), Action::Start),
-        Button::new(Rect::new(1158, 1182, 512, 64), Action::Continue(||1)),
-        Button::new(Rect::new(1158, 1280, 512, 64), Action::Quit),
+        Button::new(Rect::new(1158, 990, 512, 64), Action::Start),
+        Button::new(Rect::new(1158, 1086, 512, 64), Action::Continue(||1)),
+        Button::new(Rect::new(1158, 1182, 512, 64), Action::ClearSave),
+        Button::new(Rect::new(1158, 1278, 512, 64), Action::Quit),
     ];
     let mut mouse = Mouse::new(texture_creator);
     let texture = texture_creator.load_texture(std::path::Path::new("assets/title.png")).unwrap();
