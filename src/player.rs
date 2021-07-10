@@ -26,7 +26,7 @@ pub struct Player<'a> {
     animation_num: i32,
     particles: Vec<gfx::particles::Full>,
     particle_delay: i32,
-    sounds: Vec<sdl2::mixer::Chunk>,
+    pub sounds: Vec<sdl2::mixer::Chunk>,
 }
 
 impl<'a> Player<'a> {

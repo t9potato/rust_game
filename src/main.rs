@@ -115,6 +115,7 @@ fn game(event_pump: &mut sdl2::EventPump, canvas: &mut sdl2::render::Canvas<sdl2
 
     let mut map = ground::read(level);
     let mut player = Player::new(Rect::new(64, 1312, 64, 64), texture_creator);
+    player.sounds[1].set_volume(64);
 
     'main: loop {
         for event in event_pump.poll_iter() {
